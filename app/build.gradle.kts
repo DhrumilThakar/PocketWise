@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.pocketwise"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.pocketwise"
@@ -39,9 +39,10 @@ android {
 dependencies {
 
     val lifecycleVersion = "2.6.1"
-    implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    val roomVersion = "2.7.0-alpha11"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")

@@ -16,20 +16,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
 @Database(
     entities = [Transaction::class, Category::class],
     version = 1,
     exportSchema = false
 )
-@TypeConverters(Converters::class) // Added this
-abstract class AppDatabase : RoomDatabase() {
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase(){
     abstract fun transactionDao(): TransactionDao
     abstract fun categoryDao(): CategoriesDao
 
-    companion object {
+    companion object{
         @Volatile
         private var INSTANCE: AppDatabase? = null
-
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -37,24 +37,59 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 ).addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        // Use the instance we just created
-                        INSTANCE?.let { database ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val categoriesDao = database.categoryDao()
-                                categoriesDao.insertCategory(Category("Food", TransactionType.Expense, 0xFFE57373.toInt()))
-                                categoriesDao.insertCategory(Category("Transport", TransactionType.Expense, 0xFF64B5F6.toInt()))
-                                categoriesDao.insertCategory(Category("Entertainment", TransactionType.Expense, 0xFFFFB74D.toInt()))
-                                categoriesDao.insertCategory(Category("Salary", TransactionType.Income, 0xFF81C784.toInt()))
-                                categoriesDao.insertCategory(Category("Freelance", TransactionType.Income, 0xFF4DB6AC.toInt()))
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            super.onCreate(db)
+
+                            INSTANCE?.let { database ->
+                                // Pre-populate the database with default categories
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val categoriesDao = database.categoryDao()
+
+                                    categoriesDao.insertCategory(
+                                        Category(
+                                            "Food",
+                                            TransactionType.Expense,
+                                            0xFFE57373.toInt()
+                                        )
+                                    )
+                                    categoriesDao.insertCategory(
+                                        Category(
+                                            "Transport",
+                                            TransactionType.Expense,
+                                            0xFF64B5F6.toInt()
+                                        )
+                                    )
+                                    categoriesDao.insertCategory(
+                                        Category(
+                                            "Entertainment",
+                                            TransactionType.Expense,
+                                            0xFFFFB74D.toInt()
+                                        )
+                                    )
+                                    categoriesDao.insertCategory(
+                                        Category(
+                                            "Salary",
+                                            TransactionType.Income,
+                                            0xFF81C784.toInt()
+                                        )
+                                    )
+                                    categoriesDao.insertCategory(
+                                        Category(
+                                            "Freelance",
+                                            TransactionType.Income,
+                                            0xFF4DB6AC.toInt()
+                                        )
+                                    )
+                                }
                             }
                         }
-                    }
-                }).build()
+                    })
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
+
     }
+
 }
