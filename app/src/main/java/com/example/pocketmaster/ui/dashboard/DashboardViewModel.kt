@@ -21,7 +21,9 @@ import java.util.Locale
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: FinanceRepository = FinanceRepository(
         AppDatabase.getDatabase(application).transactionDao(),
-        AppDatabase.getDatabase(application).categoryDao()
+        AppDatabase.getDatabase(application).categoryDao(),
+        AppDatabase.getDatabase(application).personDao(),
+        AppDatabase.getDatabase(application).debtDao()
     )
 
     private val _updateTrigger = MutableSharedFlow<Unit>(replay = 1)

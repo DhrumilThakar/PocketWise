@@ -19,6 +19,7 @@
     <string name="tab_dashboard">Dashboard</string>
     <string name="tab_transactions">Transactions</string>
     <string name="tab_categories">Categories</string>
+    <string name="tab_debts">Debts</string>
 
     <!-- Dashboard strings -->
 
@@ -58,5 +59,14 @@
     <string name="error_select_category">please select a category\n</string>
     <string name="add_transaction">Add Transaction</string>
     <string name="add_transaction_description">Add a new transaction</string>
+
+    <!-- Debt strings -->
+    <string name="lent">Lent</string>
+    <string name="borrowed">Borrowed</string>
+    <string name="you_will_get">You will get</string>
+    <string name="you_owe">You owe</string>
+    <string name="add_person">Add Friend</string>
+    <string name="add_debt">Add Debt</string>
+    <string name="friend_name">Friend Name</string>
 
 </resources>

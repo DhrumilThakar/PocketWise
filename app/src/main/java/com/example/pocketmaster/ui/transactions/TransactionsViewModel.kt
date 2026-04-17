@@ -29,7 +29,9 @@ class TransactionsViewModel(
     // Initialize repository first
     private val repository: FinanceRepository = FinanceRepository(
         AppDatabase.getDatabase(application).transactionDao(),
-        AppDatabase.getDatabase(application).categoryDao()
+        AppDatabase.getDatabase(application).categoryDao(),
+        AppDatabase.getDatabase(application).personDao(),
+        AppDatabase.getDatabase(application).debtDao()
     )
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState = _dashboardState.asStateFlow()

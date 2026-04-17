@@ -12,18 +12,19 @@ import kotlinx.coroutines.launch
 class FinanceViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: FinanceRepository
 
-    // Trigger for updating UI components
     private val _transactionUpdateTrigger = MutableSharedFlow<Unit>()
-
-    // Transaction filtering
     private val _transactionFilter = MutableStateFlow(TransactionFilter.ALL)
 
     init {
         val database = AppDatabase.getDatabase(application)
-        repository = FinanceRepository(database.transactionDao(), database.categoryDao())
+        repository = FinanceRepository(
+            database.transactionDao(),
+            database.categoryDao(),
+            database.personDao(),
+            database.debtDao()
+        )
     }
 
-    // Filtered transactions with update trigger
     val filteredTransactions = combine(
         _transactionFilter,
         _transactionUpdateTrigger.onStart { emit(Unit) }
@@ -40,7 +41,6 @@ class FinanceViewModel(application: Application) : AndroidViewModel(application)
             emptyList()
         )
 
-    // Dashboard state with update trigger
     val dashboardState: StateFlow<DashboardState> = combine(
         repository.getTransactionsByType(TransactionType.INCOME),
         repository.getTransactionsByType(TransactionType.EXPENSE),
@@ -68,15 +68,18 @@ class FinanceViewModel(application: Application) : AndroidViewModel(application)
         initialValue = DashboardState()
     )
 
-    // Existing functions for categories
+    // Debt Summaries
+    val debtSummary = combine(
+        repository.totalLent,
+        repository.totalBorrowed
+    ) { lent, borrowed ->
+        Pair(lent ?: 0.0, borrowed ?: 0.0)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Pair(0.0, 0.0))
+
     val allCategories = repository.allCategories
-
     fun getCategoriesByType(type: TransactionType) = repository.getCategoriesByType(type)
+    fun getCategoryTotals(type: TransactionType, startDate: Long = 0) = repository.getCategoryTotals(type, startDate)
 
-    fun getCategoryTotals(type: TransactionType, startDate: Long = 0) =
-        repository.getCategoryTotals(type, startDate)
-
-    // Transaction operations with update triggering
     fun addTransaction(transaction: Transaction) = viewModelScope.launch {
         repository.addTransaction(transaction)
         _transactionUpdateTrigger.emit(Unit)
@@ -91,8 +94,21 @@ class FinanceViewModel(application: Application) : AndroidViewModel(application)
         _transactionFilter.value = filter
     }
 
-    // Category operations
     fun addCategory(category: Category) = viewModelScope.launch {
         repository.addCategory(category)
     }
+
+    // --- Person & Debt Operations ---
+    val allPersons = repository.allPersons
+
+    fun addPerson(name: String) = viewModelScope.launch {
+        repository.addPerson(Person(name = name))
+    }
+
+    fun addDebt(personId: Int, amount: Double, isLent: Boolean, description: String) = viewModelScope.launch {
+        repository.addDebt(Debt(personId = personId, amount = amount, isLent = isLent, description = description))
+    }
+
+    fun getBalanceForPerson(personId: Int) = repository.getBalanceForPerson(personId)
+    fun getDebtsByPerson(personId: Int) = repository.getDebtsByPerson(personId)
 }
