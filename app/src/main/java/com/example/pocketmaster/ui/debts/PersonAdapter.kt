@@ -3,11 +3,13 @@ package com.example.pocketmaster.ui.debts
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pocketmaster.data.model.Person
 import com.example.pocketmaster.databinding.ItemPersonBinding
+import com.example.pocketmaster.ui.dialogs.FriendInteractionDialog
 import com.example.pocketmaster.ui.viewmodel.FinanceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +58,11 @@ class PersonAdapter(private val viewModel: FinanceViewModel) :
             }
             
             binding.root.setOnClickListener {
-                // TODO: Open person detail/debt history
+                val context = it.context
+                if (context is AppCompatActivity) {
+                    FriendInteractionDialog.newInstance(person.id, person.name)
+                        .show(context.supportFragmentManager, "FriendInteraction")
+                }
             }
         }
     }
